@@ -183,6 +183,16 @@ const setPassword = async (req, res) => {
       });
     }
 
+    const user = await usermodel.findOne({ email });
+    if (!user) {
+      return res.json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+    user.password = password;
+    await user.save();  
+
     hospital.password = password;
     await hospital.save();
 
