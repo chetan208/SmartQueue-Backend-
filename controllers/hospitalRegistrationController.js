@@ -191,6 +191,7 @@ const setPassword = async (req, res) => {
       });
     }
     user.password = password;
+    user.isVerified = true;
     await user.save();  
 
     hospital.password = password;
