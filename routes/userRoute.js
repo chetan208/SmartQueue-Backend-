@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import { loginUser, registerUser, verifyUser ,generateTokenForPatient } from '../controllers/userControllers.js'
+import { loginUser, registerUser, verifyUser ,generateTokenForPatient,getTokenDetails } from '../controllers/userControllers.js'
 import checkAuth from '../services/checkAuth.js'
 
 const router = Router()
@@ -20,6 +20,8 @@ router.post('/login', loginUser)
 router.post('/generate-token', generateTokenForPatient)
 
 router.get('/check-auth', checkAuth)
+
+router.get('/token-details/:id',getTokenDetails)
 
 
 export default router;

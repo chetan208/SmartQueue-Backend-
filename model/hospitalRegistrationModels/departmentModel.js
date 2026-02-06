@@ -48,7 +48,10 @@ const departmentSchema = new Schema({
     wing: { type: String },
     landmark: { type: String },
     hasSpecialBuilding: { type: Boolean, default: true }
-  }
+  },
+  admins:[
+    { type: Schema.Types.ObjectId, ref: "User" }
+  ]
 });
 
 const departmentModel = model("Department", departmentSchema);

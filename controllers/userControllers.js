@@ -4,6 +4,7 @@ import TokenModel from "../model/Users/Token.js";
 import { generateTokenForUser } from "../services/generateToken.js";
 import sendOTPEmail from "../services/sendEmail.js";
 import bcrypt from 'bcryptjs';
+import mongoose from "mongoose";
 
 const registerUser=async(req,res)=>{
     const {name,email,password,PhoneNumber}=req.body;
@@ -167,7 +168,7 @@ const loginUser = async (req, res) => {
 }
 
 const generateTokenForPatient =  async (req, res) => {
-  const { hospitalId, departmentId, patientData } = req.body;
+  const { hospitalId, departmentId, departmentName, patientData } = req.body;
 
   if (!hospitalId || !departmentId) {
     return res.json({
@@ -178,32 +179,37 @@ const generateTokenForPatient =  async (req, res) => {
 
   try {
     // today date (YYYY-MM-DD)
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date();
+
+const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(
+  today.getMonth() + 1
+).padStart(2, "0")}-${today.getFullYear()}`;
 
     // STEP 1: increase counter safely
     const counter = await TokenCounter.findOneAndUpdate(
-      { hospitalId, departmentId, date: today },
+      { hospitalId, departmentId, date: formattedDate },
       { $inc: { seq: 1 } },
       { new: true, upsert: true }
     );
 
     // STEP 2: generate token
     const tokenNumber = counter.seq;
-    const token = `T-${tokenNumber}`;
+    const deptNamePart = departmentName.replace(/\s+/g, '').toUpperCase().substring(0, 4);
+    const token = `${deptNamePart}-${formattedDate}-${tokenNumber}`;
 
     // STEP 3: save token
     const newToken = await TokenModel.create({
       hospitalId,
       departmentId,
-      userId,
+      patientData,
       tokenNumber,
       token,
-      date: today
+      date: formattedDate
     });
 
     res.json({
       success: true,
-      token: newToken
+      tokenData: newToken
     });
 
   } catch (error) {
@@ -215,5 +221,37 @@ const generateTokenForPatient =  async (req, res) => {
   }
 };
 
+const getTokenDetails = async (req, res) => {
+    const { id } = req.params;
+    console.log("Fetching token details for ID:", id);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+  return res.status(400).json({ message: "Invalid ID" });
+}
+    try {
+        
+        const tokenDetails = await TokenModel.findById(id)
+        .populate('hospitalId')
+        .populate('departmentId', 'name');
+        if (!tokenDetails) {
+            return res.json({
+                success: false,
+                message: "Token not found"
+            });
+        }
+        res.json({
+            success: true,
+            tokenDetails: tokenDetails
+        });
 
-export {registerUser,verifyUser,loginUser,generateTokenForPatient};
+    } catch (error) {
+        console.log("Error fetching token details:", error);
+        res.json({
+            success: false,
+            message: "Error fetching token details"
+        });
+        
+    }
+}
+
+
+export {registerUser,verifyUser,loginUser,generateTokenForPatient,getTokenDetails};

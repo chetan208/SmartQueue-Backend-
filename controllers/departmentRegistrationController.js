@@ -134,4 +134,6 @@ const uploadImage = async(req,res) => {
   }
 }
 
+
+
 export { addDepartment , uploadImage };

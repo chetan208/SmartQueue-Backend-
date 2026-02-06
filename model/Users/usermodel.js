@@ -37,7 +37,13 @@ const userSchema=new Schema({
     },
     otpExpiry:{
         type:Date,
-    }
+    },
+    departmentsAccess:[
+        {
+            type:Schema.Types.ObjectId,
+            ref:'Department'
+        }
+    ]   
 },{timestamps:true})
 
 userSchema.pre('save',function(){
