@@ -21,8 +21,8 @@ const departmentSchema = new Schema({
     workingDays: [{ type: String }],
     timeSlots: [
       {
-        openingTime: { type: String ,required: true},
-        closingTime: { type: String, required: true },
+        openingTime: { type: String},
+        closingTime: { type: String,},
       },
     ],
 

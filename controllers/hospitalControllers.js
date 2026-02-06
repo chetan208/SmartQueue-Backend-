@@ -139,7 +139,8 @@ const getHospitalBasicInfo = async (req, res) => {
 };
 
 const getDepartmentDetails = async (req, res) => {
-  const { hospitalEmail } = req.params;
+  const  hospitalEmail  = req.user.email;
+
 
   if (!hospitalEmail) {
     return res.json({
