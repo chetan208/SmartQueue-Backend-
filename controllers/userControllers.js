@@ -167,9 +167,9 @@ const loginUser = async (req, res) => {
 }
 
 const generateTokenForPatient =  async (req, res) => {
-  const { hospitalId, departmentId, userId } = req.body;
+  const { hospitalId, departmentId, patientData } = req.body;
 
-  if (!hospitalId || !departmentId || !userId) {
+  if (!hospitalId || !departmentId) {
     return res.json({
       success: false,
       message: "All fields are required"

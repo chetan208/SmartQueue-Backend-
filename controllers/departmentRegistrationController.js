@@ -10,7 +10,7 @@ const addDepartment = async (req, res) => {
   const { departmentName, description, workingSchedule, doctors } =
     req.body;
 
-    const email = "chetanchoudhary435@gmail.com"; //--- TEMPORARY FIX ---
+    const email = req.user.email
    const hospital = await hospitalModel.findOne({ email });
     if (!hospital) {
       return res.json({

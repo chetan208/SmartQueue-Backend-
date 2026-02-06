@@ -19,7 +19,7 @@ router.post('/register', registerHospital)
 
 router.post('/verify/:email',verifyHospitalEmail)
 
-router.post('/add-department', addDepartment  )
+router.post('/add-department',checkForAuthenticationCookieMiddelware("token"), addDepartment  )
 
 router.post('/login', loginHospital)
 
