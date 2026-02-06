@@ -1,35 +1,32 @@
-const { validateToken } = require("../services/auth");
+import jwt from "jsonwebtoken";
 
-function checkForAuthenticationCookieMiddelware(cookieName) {
-    return (req, res, next) => {
-        const cookieValue = req.cookies[cookieName];
-        if (!cookieValue) {
-            return (
-                res.status(401).json(
-                    {
-                        success: false,
-                        message: "Authentication required"
-                    }
-                )
-            )
-        }
+const checkForAuthenticationCookieMiddelware = (cookieName) => {
+  return (req, res, next) => {
 
-        try {
-            const payload = validateToken(cookieValue);
-            req.user = payload;
-            return next();
+  
 
-        } catch (error) {
-            return (
-                res.status(401).json({
-                    success: false,
-                    message: error.message
-                })
-            )
-        }
+    const cookieValue = req.cookies?.[cookieName];
+
+    if (!cookieValue) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required"
+      });
     }
 
-}
+    try {
+      const payload = jwt.verify(cookieValue, process.env.JWT_SECRET);
+    
+      req.user = payload;
+      
+      next();
+    } catch (error) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid or expired token"
+      });
+    }
+  };
+};
 
-
-module.exports =checkForAuthenticationCookieMiddelware;
+export default checkForAuthenticationCookieMiddelware;

@@ -1,8 +1,10 @@
 import {Router} from 'express'
 import { loginHospital, registerHospital ,verifyHospitalEmail,setPassword,branding} from '../controllers/hospitalRegistrationController.js';
 import { addDepartment ,uploadImage} from '../controllers/departmentRegistrationController.js';
-import { getDepartmentDetails, getHospitalBasicInfo, hospitalInfo, searchHospitals } from '../controllers/hospitalControllers.js';
+import { getDepartmentDetails, getHospitalBasicInfo, hospitalInfo, searchHospitals,hospitalInfoForPublic } from '../controllers/hospitalControllers.js';
 import upload from '../middelwares/upload.js';
+import checkForAuthenticationCookieMiddelware from '../middelwares/protect.js';
+
 
 const router = Router();
 
@@ -36,10 +38,12 @@ router.post(
   uploadImage
 );
 
-router.get('/basic-info/:hospitalEmail',getHospitalBasicInfo )
+router.get('/basic-info',checkForAuthenticationCookieMiddelware("token"),getHospitalBasicInfo )
 
-router.get('/department-details/:hospitalEmail',getDepartmentDetails)
+router.get('/department-details',checkForAuthenticationCookieMiddelware("token"),getDepartmentDetails)
 
-router.get('/hospital-info/:hospitalEmail',hospitalInfo)
+router.get('/hospital-info',checkForAuthenticationCookieMiddelware("token"),hospitalInfo)
+
+router.get('/hospital-info/:hospitalId', hospitalInfoForPublic)
 
 export default router;

@@ -2,7 +2,7 @@ import hospitalModel from "../model/hospitalRegistrationModels/hospitalModel.js"
 import sendOTPEmail from "../services/sendEmail.js";
 import addressModel from "../model/accetsModels/addressModel.js";
 import bcrypt from 'bcryptjs';
-import { generateTokenForHospital } from "../services/generateToken.js";
+import { generateTokenForHospital, generateTokenForUser } from "../services/generateToken.js";
 import imageModel from "../model/accetsModels/imageModel.js"
 import uploadBufferToCloudinary from "../config/uploadToCloudinary.js";
 import usermodel from "../model/Users/usermodel.js";
@@ -190,14 +190,33 @@ const setPassword = async (req, res) => {
         message: "User not found.",
       });
     }
-    user.password = password;
+    const salt=bcrypt.genSaltSync(10);
+    const hash=bcrypt.hashSync(password,salt);
+
+    user.password=hash;
     user.isVerified = true;
     await user.save();  
 
-    hospital.password = password;
+    hospital.password = hash;
     await hospital.save();
 
-    res.json({ success: true, message: "Password set successfully." });
+    const newUser = await usermodel.findOne({email})
+
+    const token = generateTokenForUser(newUser);
+    
+    res
+            .cookie("token",token,{
+                httpOnly:true,
+                secure:true,
+                sameSite:'None',
+            })
+
+            .json({
+                success: true,
+                message: "password set successfully",
+                role: user.role
+            })
+  
   } catch (error) {
     console.log("Error setting hospital password:", error);
     res.json({
