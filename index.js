@@ -10,6 +10,8 @@ import cookieParser from 'cookie-parser';
 import hospitalRouter from './routes/hospitalRoutes.js'
 import userRouter from './routes/userRoute.js'
 import cors from 'cors';
+import http from "http";
+import { Server } from "socket.io";
 
 
 
@@ -19,6 +21,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 
 const app = express();
+const server = http.createServer(app);
 
 const PORT = process.env.PORT;
 
@@ -27,6 +30,11 @@ app.use(cors({
   origin: process.env.FRONTEND_URL,
   credentials: true
 }));
+
+// socket.io setup
+export const io = new Server(server, {
+  cors: { origin: process.env.FRONTEND_URL, credentials: true }
+});
 
 // middlewares
 app.use(express.json());
@@ -44,6 +52,26 @@ app.get('/', (req, res) => {
 app.use('/api/hospitals',hospitalRouter)
 app.use('/api/users',userRouter)
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+});
+
+
+
+io.on("connection", (socket) => {
+  console.log("Client connected:", socket.id);
+  socket.on("disconnect", () => {
+    console.log("Client disconnected:", socket.id);
+  });
+
+   socket.on("join-department", (department) => {
+    socket.join(`user-${department}`);
+    console.log(`${socket.id} joined user-${department}`);
+  });
+
+  // Admin joins department-admin
+  socket.on("join-department-admin", (department) => {
+    socket.join(`admin-${department}`);
+    console.log(`${socket.id} joined admin-${department}`);
+  });
 });

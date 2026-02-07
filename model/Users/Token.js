@@ -35,10 +35,17 @@ const tokenSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ["WAITING", "IN_PROGRESS", "COMPLETED"],
+    enum: ["WAITING", "IN_PROGRESS", "COMPLETED","PAUSED"],
     default: "WAITING"
   },
-  
+  activeTime:{
+    type:Number,
+    default:0
+  },
+  lastResumedAt:{
+    type:Date,
+    default: null
+  }
 });
 
 const TokenModel = model("Token", tokenSchema);

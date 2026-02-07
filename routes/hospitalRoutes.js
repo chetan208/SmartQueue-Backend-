@@ -21,7 +21,9 @@ import {
   getSingleDepartmentDetail,
   addDepartmentAdmin,
   fetchDepartmentAdmin,
-  fetchDepartmentDetailsForAdmin
+  fetchDepartmentDetailsForAdmin,
+  departmentDoctorDetailsForAdmin,
+  fetchQueue
 } from "../controllers/hospitalControllers.js";
 
 import upload from "../middelwares/upload.js";
@@ -94,5 +96,11 @@ router.post('/add-dept-admin', checkForAuthenticationCookieMiddelware("token"), 
 router.get("/fetch-department-admin/:id", fetchDepartmentAdmin);
 
 router.get("/fetch-department-detailsfor-admin/:id", checkForAuthenticationCookieMiddelware("token"),fetchDepartmentDetailsForAdmin);
+
+router.get("/fetch-department-doctors/:id", checkForAuthenticationCookieMiddelware("token"), departmentDoctorDetailsForAdmin);
+
+router.get("/fetch-queue/:departmentId", fetchQueue);
+
+
 
 export default router;

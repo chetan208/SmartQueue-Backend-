@@ -1,6 +1,7 @@
 import HospitalModel from "../model/hospitalRegistrationModels/hospitalModel.js";
 import departmentModel from "../model/hospitalRegistrationModels/departmentModel.js";
 import UserModel from "../model/Users/usermodel.js";
+import Token from "../model/Users/Token.js";
 
 const searchHospitals = async (req, res) => {
   try {
@@ -435,14 +436,90 @@ const fetchDepartmentAdmin = async (req, res) => {
 const fetchDepartmentDetailsForAdmin = async (req, res) => {
   const { id } = req.params;
   
-  const userId=req.user;
+  const userId=req.user.id;
+
+  const user = await UserModel.findById(userId);
+
+  if (!user) {
+    return res.json({
+      success: false,
+      message: "User not found",
+    });
+  }
+
+  if (!user.departmentsAccess.includes(id)) {
+    return res.json({
+      success: false,
+      message: "User does not have access to this department",
+    });
+  }
+
+  const department = await departmentModel.findById(id)
+    .populate("entrancePhoto", "url")
+    .populate("additionalPhotos", "url");
+
 
   res.json({
     success: true,
-    message: "Fetch department details for admin route is working",
-    userId,
-    departmentId: id
+    department
   });
+}
+
+const departmentDoctorDetailsForAdmin = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+
+  const user = await UserModel.findById(userId);
+ 
+
+  if (!user.departmentsAccess.includes(id)) {
+    return res.json({
+      success: false,
+      message: "Unauthorized access to department details",
+    });
+  }
+
+  try {
+    const department = await departmentModel.findById(id)
+  .populate("Doctors", "name email specialization")
+
+  res.json({
+    success: true,
+    doctors: department.Doctors
+  });
+  } catch (error) {
+    console.log("Error fetching department details:", error);
+    res.json({
+      success: false,
+      message: "Failed to fetch department details",
+    });
+  }
+
+}
+
+const fetchQueue = async (req, res) => {
+  const {departmentId} = req.params;
+
+  try {
+
+  const queue = await Token.find({
+  departmentId,
+  status: { $in: ["WAITING", "IN_PROGRESS"] }
+}).sort({ createdAt: 1 });
+
+     res.json({
+      success: true,
+      queue
+    });
+    
+  } catch (error) {
+    console.log("Error fetching queue details:", error);
+    res.json({
+      success: false,
+      message: "Failed to fetch queue details",
+    });
+    
+  }
 }
 
 export {
@@ -454,5 +531,9 @@ export {
   getSingleDepartmentDetail,
   addDepartmentAdmin,
   fetchDepartmentAdmin,
-  fetchDepartmentDetailsForAdmin
+  fetchDepartmentDetailsForAdmin,
+  departmentDoctorDetailsForAdmin,
+  fetchQueue
 };
+
+
