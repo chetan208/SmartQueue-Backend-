@@ -20,7 +20,8 @@ import {
   hospitalInfoForPublic,
   getSingleDepartmentDetail,
   addDepartmentAdmin,
-  fetchDepartmentAdmin
+  fetchDepartmentAdmin,
+  fetchDepartmentDetailsForAdmin
 } from "../controllers/hospitalControllers.js";
 
 import upload from "../middelwares/upload.js";
@@ -91,5 +92,7 @@ router.get("/department-details/:departmentId", getSingleDepartmentDetail);
 router.post('/add-dept-admin', checkForAuthenticationCookieMiddelware("token"), addDepartmentAdmin);
 
 router.get("/fetch-department-admin/:id", fetchDepartmentAdmin);
+
+router.get("/fetch-department-detailsfor-admin/:id", checkForAuthenticationCookieMiddelware("token"),fetchDepartmentDetailsForAdmin);
 
 export default router;

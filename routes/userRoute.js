@@ -1,6 +1,7 @@
 import {Router} from 'express'
-import { loginUser, registerUser, verifyUser ,generateTokenForPatient,getTokenDetails } from '../controllers/userControllers.js'
+import { loginUser, registerUser, verifyUser ,generateTokenForPatient,getTokenDetails,checkDepartmentAccess } from '../controllers/userControllers.js'
 import checkAuth from '../services/checkAuth.js'
+import checkForAuthenticationCookieMiddelware from "../middelwares/protect.js";
 
 const router = Router()
 
@@ -22,6 +23,8 @@ router.post('/generate-token', generateTokenForPatient)
 router.get('/check-auth', checkAuth)
 
 router.get('/token-details/:id',getTokenDetails)
+
+router.get('/departments-accessible', checkForAuthenticationCookieMiddelware("token"), checkDepartmentAccess)
 
 
 export default router;

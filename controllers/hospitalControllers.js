@@ -432,6 +432,19 @@ const fetchDepartmentAdmin = async (req, res) => {
   }
 }
 
+const fetchDepartmentDetailsForAdmin = async (req, res) => {
+  const { id } = req.params;
+  
+  const userId=req.user;
+
+  res.json({
+    success: true,
+    message: "Fetch department details for admin route is working",
+    userId,
+    departmentId: id
+  });
+}
+
 export {
   searchHospitals,
   getHospitalBasicInfo,
@@ -440,5 +453,6 @@ export {
   hospitalInfoForPublic,
   getSingleDepartmentDetail,
   addDepartmentAdmin,
-  fetchDepartmentAdmin
+  fetchDepartmentAdmin,
+  fetchDepartmentDetailsForAdmin
 };

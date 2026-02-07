@@ -9,7 +9,7 @@ import mongoose from "mongoose";
 const registerUser=async(req,res)=>{
     const {name,email,password,PhoneNumber}=req.body;
 
-    if(!name || !email || !password || !PhoneNumber){
+    if(!name || !email || !password){
         return res.json({
             success:false,
             message:"All fields are required"
@@ -95,10 +95,23 @@ const verifyUser=async(req,res)=>{
         user.otp=undefined;
         user.otpExpiry=undefined;
         await user.save();
-        res.json({
-            success:true,
-            message:"User verified successfully"
-        })
+
+        const newUser = await usermodel.findOne({email});
+
+        const token = generateTokenForUser(newUser);
+        
+        res
+            .cookie("token",token,{
+                httpOnly:true,
+                secure:true,
+                sameSite:'None',
+            })
+
+            .json({
+                success: true,
+                message: "User verified and logged in successfully",
+                role: newUser.role
+            })
     } catch (error) {
         console.log("Error verifying user:", error);
         res.json({
@@ -253,5 +266,39 @@ const getTokenDetails = async (req, res) => {
     }
 }
 
+const checkDepartmentAccess = async (req, res) => {
+    const userEmail = req.user.email; // Assuming the middleware sets req.user
 
-export {registerUser,verifyUser,loginUser,generateTokenForPatient,getTokenDetails};
+    try {
+        const user = await usermodel.findOne({email:userEmail})
+        .populate({
+            path: 'departmentsAccess',
+            select: "name status Doctors entrancePhoto",
+            populate: {
+                path:'entrancePhoto',
+                select:'url'
+            }
+        })
+        
+        if (!user) {
+            return res.json({
+                success: false,
+                message: "User not found"
+            });
+        }
+        res.json({
+            success: true,
+            departmentsAccess: user.departmentsAccess
+        });
+    } catch (error) {
+        console.log("Error checking department access:", error);
+        res.json({
+            success: false,
+            message: "Error checking department access"
+        });
+        
+    }
+
+}
+
+export {registerUser,verifyUser,loginUser,generateTokenForPatient,getTokenDetails,checkDepartmentAccess};

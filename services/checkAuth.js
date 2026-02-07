@@ -1,7 +1,9 @@
 import jwt from "jsonwebtoken";
+import userModel from "../model/Users/usermodel.js";  
 
-function  checkAuth(req,res) {
+async function   checkAuth(req,res) {
         const cookieValue = req.cookies["token"];
+        
 
         if (!cookieValue) {
             return res.json(
@@ -14,8 +16,9 @@ function  checkAuth(req,res) {
 
         try {
             const payload =  jwt.verify(cookieValue, process.env.JWT_SECRET);
+            const user = await userModel.findById(payload.id);
+            payload.role=user.role
             return res.json({
-            
                 ...payload,
                 success:true,
                 message:"user logged in"
