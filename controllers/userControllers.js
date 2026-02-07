@@ -142,10 +142,9 @@ const loginUser = async (req, res) => {
         message: "User is not verified",
       });
     }
-    console.log(user);
-    console.log(password);
+    
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    console.log(isPasswordValid);
+    
 
     if (!isPasswordValid) {
       return res.json({

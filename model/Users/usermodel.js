@@ -49,7 +49,7 @@ const userSchema=new Schema({
 userSchema.pre('save',function(){
     const user=this;
     user.email=user.email.toLowerCase();
-    if(user.isModified('password')){
+    if(!user.isModified('password')){
         return;
     }
 
