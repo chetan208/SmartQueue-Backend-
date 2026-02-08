@@ -379,6 +379,10 @@ const completeToken = async (req, res) => {
     return res.status(400).json({ message: "Invalid ID" });
   }
 
+  if (!id) {
+    return res.status(400).json({ message: "Token ID is required" });
+  }
+
   try {
     const token = await TokenModel.findById(id);
     if (!token) {
@@ -406,6 +410,10 @@ const completeToken = async (req, res) => {
     });
   } catch (error) {
     console.log("Error completing token:", error);
+      res.json({
+        success: false,
+        message: "Error completing token",
+      });
   }
 };
 
@@ -417,6 +425,9 @@ const getAverageQueueTime = async (req, res) => {
     return res.status(400).json({ message: "Invalid Department ID" });
   }
 
+  if(!departmentId){
+    return res.status(400).json({ message: "Department ID is required" });
+  }
   try {
 
     const tokens = await TokenModel.find({
@@ -429,6 +440,7 @@ const getAverageQueueTime = async (req, res) => {
       return res.json({
         success: true,
         averageTimeMs: 5*60*1000, // default 5 minutes
+        averageTimeMinutes: 5,
         totalTokens: 0,
       });
     }
